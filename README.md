@@ -1,7 +1,7 @@
 # Homework-2
 Data Structures Homework.
 
-
+Language: c++
 
 
 
@@ -17,3 +17,5 @@ Create the above queue and find the following
 2.	Print the total amount of money that the cafeteria sell.
 3.	Print the number of students that don’t buying any item
 4.	Find if there is a student that buying some of his items and the others are not. 
+
+
