@@ -25,6 +25,8 @@ class student
 		{
 			int numberOfLine=0 ;// Number of lines in the file
 			string line;
+			file.clear();
+			file.seekg(0);
 			while(getline(file,line))
 			{
 				numberOfLine++;
@@ -51,42 +53,56 @@ class student
 		}
 									file.close();
 									
-									
-									
 		
 		number_item=rand()%4;
 		avg=rand()%101;
 		id=count;
 	}
+	
 };
 int student ::count=0;
 string student ::fileName="name.txt";
-void addstudent(queue<student>&q);
+void addRandomStudent(queue<student>&q);
 void printStudent(queue<student>q);
+void total(queue<student>q,int n); //  cafeteria earn
 main()
 {
-	int n_c=rand()%201; // number of cafeteria items
+	//int n_c=rand()%201; // number of cafeteria items
+	int n_c=8;
 	queue<student>q;
-	addstudent(q);
+	addRandomStudent(q);
 	printStudent(q);
+	total(q,n_c);
+	
 	
 }
-void addstudent(queue<student>&q) // add random students less than 100
+void addRandomStudent(queue<student>&q) // add student in order 
 {
-	int number_student=rand()%101;
+	queue<student>temp;
+//	int number_student=rand()%101;
+	int number_student=7;
 	for(int i=0;i<number_student;i++)
 	{
-		student a;
-		student b;
-		queue<student>temp;
+		student *a=new student;
+		int j=0;
 		while(!q.empty())
 		{
-			b=q.front();
-			q.pop();
-			if(b.avg<a.avg)
-			
+			temp.push(q.front());
+			if(a->avg<q.front().avg)
+			j++;
+			q.pop();		
 		}
-		q.push(a);
+		for(int k=0;k<j;k++)
+		{
+			q.push(temp.front());
+			temp.pop();	
+		}
+		q.push(*a);
+		while(!temp.empty())
+		{
+			q.push(temp.front());
+			temp.pop();	
+		}	
 	}
 }
 void printStudent(queue<student>q)
@@ -101,4 +117,103 @@ void printStudent(queue<student>q)
 		q.pop();
 		cout<<"********************************************\n";
 	}
+}
+void total(queue<student>q,int n) // n : number of cafeteria item
+{
+	int money=0;
+	int cantbuying=0; // number of students that don't buying any item
+	while(!q.empty())
+	{
+		
+		if(q.front().avg>=90)
+		{
+			
+			if(n>=q.front().number_item && q.front().number_item!=0)
+			n=n-q.front().number_item; // all item for free 
+			else if(q.front().number_item==0 || n==0 )
+			cantbuying++;
+			else if(q.front().number_item>n &&  n==0)
+			{
+				
+				cout<<"student id ("<<q.front().id<<") want to buy "<<q.front().number_item<<
+				"items and there are just "<<n<<" item in cafeteria"<<endl;
+				n=0;
+				
+			}
+		}
+		else if(q.front().avg>=60 && q.front().avg<=89)
+		{
+			
+			if(q.front().number_item<=n && q.front().number_item!=0)
+			{
+				q.front().number_item--;
+				n--; // free item;
+				money=money+ q.front().number_item  * 10;
+				n=n-q.front().number_item;
+			}
+			else if(q.front().number_item==0 || n==0)
+			{
+				cantbuying++;
+			}
+			else if(q.front().number_item>n)
+			{
+				
+				cout<<"student id ("<<q.front().id<<") want to buy "<<q.front().number_item<<
+				"items and there are just "<<n<<" item in cafeteria"<<endl;			
+				
+				n--; // free item;
+				
+				while(n!=0)
+				{
+						
+						money=money+10;
+						n--;
+						q.front().number_item--;	
+				}
+				
+			}
+			
+		}
+		
+		else
+		{
+			
+			if(q.front().number_item<=n && q.front().number_item!=0)
+			{
+				
+				money=money+(q.front().number_item  * 10);
+				n=n-q.front().number_item;
+			}
+			else if(q.front().number_item==0 || n==0)
+			{
+				cantbuying++;
+			}
+			else if(q.front().number_item>n)
+			{
+				cout<<"student id ("<<q.front().id<<") want to buy "<<q.front().number_item<<
+				" items and there are just "<<n<<" item in cafeteria"<<endl;
+				
+				
+				while(n!=0)
+				{
+					
+						money=money+10;
+						n--;
+						q.front().number_item--;	
+				}
+				
+				
+			}
+		}
+		
+		q.pop();
+	}
+	
+	
+	
+	
+	cout<<"==============================="<<endl;
+	cout<<" number of student dont buy anything: "<<cantbuying<<endl;
+	cout<<"==============================="<<endl;
+	cout<<" total money cafeteria earn: "<<money<<endl;
 }
