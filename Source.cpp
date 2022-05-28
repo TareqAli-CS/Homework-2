@@ -5,7 +5,7 @@ using namespace std;
 class student
 {
 	public:
-	static int count;
+	static int count; // that way i can make id changing one by one
 	
 	int id;
 	string name;
@@ -13,7 +13,7 @@ class student
 	int number_item; // number of buying items
 	
 	
-	static string fileName;
+	static string fileName; // file to get the name
 	student()
 	{
 		count++; // to add 1 per object To find out how many students
@@ -23,25 +23,25 @@ class student
 	l1:	file.open(fileName.c_str());
 		if(file.is_open())
 		{
-			int numberOfLine=0 ;// Number of lines in the file
+			int numberOfLine=0 ;// Number of lines in the file : number of names in the file
 			string line;
 			file.clear();
-			file.seekg(0);
+			file.seekg(0); // to start from the beginning
 			while(getline(file,line))
 			{
-				numberOfLine++;
-				
+				numberOfLine++;	
 			}
 			file.clear();
-			file.seekg(0); // to return from beginning of file
+			file.seekg(0); // to back from beginning of file
 			for(int i=1;i<=count;i++)
 			{
 				getline(file, name);
+				
 			}
 			if(numberOfLine<count)
 			{
-				cout<<"file out of name, please enter name: ";
-				cin>>name;
+				cout<<"file out of name, please enter the name: "; // enter the name manually
+				cin>>name; 
 			}
 		}
 		else
@@ -51,169 +51,197 @@ class student
 			cin>>fileName;
 			goto l1;
 		}
-									file.close();
+		file.close();
 									
-		
-		number_item=rand()%4;
-		avg=rand()%101;
 		id=count;
+		number_item=rand()%4;
+		cout<<"enter items for student id:"<<id<<" ";
+		cin>>number_item;
+		avg=rand()%101;
+	//	cout<<"enter average for student id:"<<id<<" ";
+	//	cin>>avg;
+		
+		avg =30;
+		
 	}
 	
 };
 int student ::count=0;
 string student ::fileName="name.txt";
-void addRandomStudent(queue<student>&q);
+void addStudent(queue<student>&q , int number_student);
 void printStudent(queue<student>q);
 void total(queue<student>q,int n); //  cafeteria earn
 main()
 {
-	//int n_c=rand()%201; // number of cafeteria items
-	int n_c=8;
+	int n_c=rand()%201; // number of cafeteria items
+	int n_s=rand()%101; // number of students;
+	cout<<"enter number of cafeteria items: ";
+	cin>>n_c;
+	cout<<"enter number of students: ";
+	cin>>n_s;
+	
 	queue<student>q;
-	addRandomStudent(q);
+	addStudent(q,n_s);
 	printStudent(q);
 	total(q,n_c);
 	
-	
 }
-void addRandomStudent(queue<student>&q) // add student in order 
+void addStudent(queue<student>&q , int number_student) // add student in order 
 {
 	queue<student>temp;
-//	int number_student=rand()%101;
-	int number_student=7;
 	for(int i=0;i<number_student;i++)
 	{
 		student *a=new student;
 		int j=0;
-		while(!q.empty())
-		{
-			temp.push(q.front());
-			if(a->avg<q.front().avg)
-			j++;
-			q.pop();		
-		}
-		for(int k=0;k<j;k++)
-		{
-			q.push(temp.front());
-			temp.pop();	
-		}
+		
+		if(a->avg==q.front().avg)
 		q.push(*a);
-		while(!temp.empty())
+		
+		else
 		{
-			q.push(temp.front());
-			temp.pop();	
+			while(!q.empty())
+			{
+				temp.push(q.front());
+				if(a->avg<q.front().avg)
+				j++;
+				q.pop();		
+			}
+			for(int k=0;k<j;k++)
+			{
+				q.push(temp.front());
+				temp.pop();	
+			}
+			q.push(*a);
+			while(!temp.empty())
+			{
+				q.push(temp.front());
+				temp.pop();	
+			}
 		}	
 	}
 }
 void printStudent(queue<student>q)
 {
-	student s;
+	int id;
+	string name;
+	int numberOfItems;
+	double avg;
 	while(!q.empty())
 	{
+		id=q.front().id;
+		name=q.front().name;
+		numberOfItems=q.front().number_item;
+		avg=q.front().avg;
 		
-		s=q.front();
-		cout<<"ID: "<<s.id<<"\nName: "<<s.name<<"\nAvg: "
-		<<s.avg<<"\nNumber of Item: "<<s.number_item<<endl;
+
+		
+		cout<<"ID: "<<id<<"\nName: "<<name<<"\nAvg: "
+		<<avg<<"\nNumber of Item: "<<numberOfItems<<endl;
 		q.pop();
 		cout<<"********************************************\n";
 	}
 }
-void total(queue<student>q,int n) // n : number of cafeteria item
+void total(queue<student>q,int n) // n : number of cafeteria items
 {
 	int money=0;
 	int cantbuying=0; // number of students that don't buying any item
+	//
+	int id;
+	int numberOfItems;
+	double avg;
+	//
 	while(!q.empty())
 	{
+		id=q.front().id;
+		numberOfItems=q.front().number_item;
+		avg=q.front().avg;
+//    									
 		
-		if(q.front().avg>=90)
+		if(numberOfItems==0 )// the student did not want to buy or dont  found items in the cafeteria
 		{
-			
-			if(n>=q.front().number_item && q.front().number_item!=0)
-			n=n-q.front().number_item; // all item for free 
-			else if(q.front().number_item==0 || n==0 )
-			cantbuying++;
-			else if(q.front().number_item>n &&  n==0)
-			{
-				
-				cout<<"student id ("<<q.front().id<<") want to buy "<<q.front().number_item<<
-				"items and there are just "<<n<<" item in cafeteria"<<endl;
-				n=0;
-				
-			}
+			cantbuying++;  //no need to check his average
+			goto l3; 	  // Go to the next student
 		}
-		else if(q.front().avg>=60 && q.front().avg<=89)
+		else if(n==0) // no need to check other students
 		{
-			
-			if(q.front().number_item<=n && q.front().number_item!=0)
-			{
-				q.front().number_item--;
-				n--; // free item;
-				money=money+ q.front().number_item  * 10;
-				n=n-q.front().number_item;
-			}
-			else if(q.front().number_item==0 || n==0)
+			while(!q.empty())
 			{
 				cantbuying++;
+				q.pop();
 			}
-			else if(q.front().number_item>n)
+			goto l2; // print and out from the function
+		}
+		
+		if(avg>=90) // all his items for free
+		{	
+			if(numberOfItems<=n && numberOfItems!=0)
+			n=n-numberOfItems; // all item for free 
+			
+			else if(numberOfItems>n ) 
 			{
 				
-				cout<<"student id ("<<q.front().id<<") want to buy "<<q.front().number_item<<
-				"items and there are just "<<n<<" item in cafeteria"<<endl;			
+				cout<<"student id ("<<id<<") want to buy "<<numberOfItems<<
+				" items and there are just "<<n<<" item in cafeteria"<<endl;
+				n=0;	
+			}
+		}
+		else if(avg>=60 && avg<=89)
+		{	
+			if(numberOfItems<=n && numberOfItems!=0)
+			{
+				
+				numberOfItems--;
+				n--; // free item;
+				money=money+ numberOfItems  * 10;
+				n=n-numberOfItems;
+			}
+			else if(numberOfItems>n)
+			{	
+				cout<<"student id ("<<id<<") want to buy "<<numberOfItems<<
+				" items and there are just "<<n<<" item in cafeteria"<<endl;			
 				
 				n--; // free item;
-				
+			
 				while(n!=0)
-				{
-						
-						money=money+10;
-						n--;
-						q.front().number_item--;	
+				{	
+					money=money+10;
+					n--;
+					numberOfItems--;	
 				}
-				
 			}
 			
-		}
+		} // avg>=60 && avg<=89
 		
 		else
 		{
 			
-			if(q.front().number_item<=n && q.front().number_item!=0)
+			if(numberOfItems<=n && numberOfItems!=0)
 			{
 				
-				money=money+(q.front().number_item  * 10);
-				n=n-q.front().number_item;
+				money=money+(numberOfItems  * 10);
+				n=n-numberOfItems;
 			}
-			else if(q.front().number_item==0 || n==0)
+			else if(numberOfItems>n)
 			{
-				cantbuying++;
-			}
-			else if(q.front().number_item>n)
-			{
-				cout<<"student id ("<<q.front().id<<") want to buy "<<q.front().number_item<<
+				cout<<"student id ("<<id<<") want to buy "<<numberOfItems<<
 				" items and there are just "<<n<<" item in cafeteria"<<endl;
 				
 				
 				while(n!=0)
-				{
-					
-						money=money+10;
-						n--;
-						q.front().number_item--;	
-				}
-				
-				
+				{	
+					money=money+10;
+					n--;
+					numberOfItems--;	
+				}	
 			}
-		}
+		}// avg<60
 		
-		q.pop();
+l3:		q.pop(); 
 	}
 	
 	
-	
-	
-	cout<<"==============================="<<endl;
-	cout<<" number of student dont buy anything: "<<cantbuying<<endl;
-	cout<<"==============================="<<endl;
-	cout<<" total money cafeteria earn: "<<money<<endl;
+l2:	cout<<"=============================================================="<<endl;
+	cout<<" The number of students who did not buy anything: "<<cantbuying<<endl;
+	cout<<" Total money earned by Cafeteria: $"<<money<<endl;
+	cout<<"=============================================================="<<endl;
 }
