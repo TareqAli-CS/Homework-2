@@ -1,6 +1,7 @@
 #include <iostream>
 #include <queue>
 #include <fstream>
+#include <vector>
 using namespace std;
 class Student
 {
@@ -69,6 +70,7 @@ string Student ::fileName="name.txt";
 void addStudent(queue<Student>&q , int number_Student);
 void printStudent(queue<Student>q);
 void total(queue<Student>q,int n); //  cafeteria earn
+void print(queue<Student>q);
 main()
 {
 	int n_c=rand()%201; // number of cafeteria items
@@ -80,45 +82,48 @@ main()
 	
 	queue<Student>q;
 	addStudent(q,n_s);
-	printStudent(q);
+	print(q);
 	total(q,n_c);
 	
 }
 void addStudent(queue<Student>&q , int number_Student) // add Student in order 
 {
-	queue<Student>temp;
 	for(int i=0;i<number_Student;i++)
 	{
 		Student *a=new Student;
-		int j=0;
 		
-		if(a->avg==q.front().avg)
 		q.push(*a);
-		
-		else
-		{
-			while(!q.empty())
-			{
-				temp.push(q.front());
-				if(a->avg<q.front().avg)
-				j++;
-				q.pop();		
-			}
-			for(int k=0;k<j;k++)
-			{
-				q.push(temp.front());
-				temp.pop();	
-			}
-			q.push(*a);
-			while(!temp.empty())
-			{
-				q.push(temp.front());
-				temp.pop();	
-			}
-		}	
 	}
+		
 }
-
+void print(queue<Student>q)
+{
+	vector<Student>v;
+	Student temp;
+	while(!q.empty())
+	{
+		v.push_back(q.front());
+	}
+	for(int i=0;i<v.size();i++)
+	{
+		for(int j=0;j<v.size();j++)
+		{
+			if(v[i].avg<v[j].avg)
+			{
+				temp=v[i];
+				v[i]=v[j];
+				v[j]=v[i];
+			}
+		}
+	}
+	
+	for(int i=0;i<v.size();i++)
+	{
+		q.push(v[i]);
+	}
+	
+	printStudent(q);
+}
 void printStudent(queue<Student>q)
 {
 	int id;
@@ -142,6 +147,7 @@ void printStudent(queue<Student>q)
 		cout<<"********************************************\n";
 	}
 }
+
 void total(queue<Student>q,int n) // n : number of cafeteria items
 {
 	int money=0;
